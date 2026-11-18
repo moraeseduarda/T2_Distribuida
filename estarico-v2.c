@@ -14,12 +14,6 @@ int main(int argc, char *argv[]) {
     char *caminho_dir = argv[2];
     char *termo_busca = argv[4];
 
-    DIR *diretorio = opendir(caminho_dir);
-    if (diretorio == NULL) {
-        printf("Erro ao abrir o diretório: %s\n", caminho_dir);
-        return 1;
-    }
-
     MPI_Init(&argc, &argv); // Inicializa o MPI
     
     int rank_proc;
@@ -29,7 +23,12 @@ int main(int argc, char *argv[]) {
     int num_workers = total_processos - 1;
 
     if (rank_proc == 0) {
-        
+        DIR *diretorio = opendir(caminho_dir);
+        if (diretorio == NULL) {
+            printf("Erro ao abrir o diretório: %s\n", caminho_dir);
+            return 1;
+        }
+
         for (int i = 0; i < num_workers; i++) {
             int rank_vez = i % num_workers + 1;
             // MPI_Send(buffer, quantidade, MPI_CHAR, rank_vez, tag, MPI_COMM_WORLD);
