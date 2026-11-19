@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    // char *nome_arquivo = argv[2];
+    // char *nome_arquivo[256];
     char *caminho_dir = argv[2];
     char *termo_busca = argv[4];
 
@@ -28,14 +28,24 @@ int main(int argc, char *argv[]) {
             printf("Erro ao abrir o diretório: %s\n", caminho_dir);
             return 1;
         }
+        struct dirent *entrada;
+        int contador_arquivos = 0;
+        while (entrada = readdir(diretorio) != NULL) {
+            if (strcmp(entrada->d_name, ".") == 0 || strcmp(entrada->d_name, "..") == 0) {
+                continue;
+            }
 
-        for (int i = 0; i < num_workers; i++) {
-            int rank_vez = i % num_workers + 1;
-            // MPI_Send(buffer, quantidade, MPI_CHAR, rank_vez, tag, MPI_COMM_WORLD);
-        }
+            char caminho_completo[256];
+            snprintf(caminho_completo, sizeof(caminho_completo), "%s/%s", caminho_dir, entrada->d_name);
+        
+            int rank_worker = contador_arquivos % num_workers + 1;
+            MPI_Send(caminho_completo, sizeof(caminho_completo), MPI_CHAR, rank_worker, 1, MPI_COMM_WORLD);
+            contador_arquivos++;
+        };
         
     } else {
-        //MPI_Recv(&buffer, quantidade, MPI_CHAR, 0, tag, MPI_COMM_WORLD, status?);
+        char nome_arquivo[256];
+        MPI_Recv(nome_arquivo, sizeof(nome_arquivo), MPI_CHAR, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         FILE *pont_arq = fopen(nome_arquivo, "r");
         
         char linha_lida[1024];
