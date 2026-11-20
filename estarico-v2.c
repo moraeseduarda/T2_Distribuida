@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
         }
         struct dirent *entrada;
         int contador_arquivos = 0;
-        while (entrada = readdir(diretorio) != NULL) {
+        while ((entrada = readdir(diretorio)) != NULL) {
             if (strcmp(entrada->d_name, ".") == 0 || strcmp(entrada->d_name, "..") == 0) {
                 continue;
             }
