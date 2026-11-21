@@ -62,8 +62,10 @@ int main(int argc, char *argv[]) {
 
         for (int arq = 0; arq < contador_arquivos; arq++) {
             char saida_arqs[2048];
-            MPI_Recv(saida_arqs, sizeof(saida_arqs), MPI_CHAR, MPI_ANY_SOURCE, 2, MPI_COMM_WORLD, &status);
-            //Falta organizar a saída para ficar igual o exemplo do enunciado, em ordem de arquivo.
+            int rank_worker = arq % num_workers + 1;
+            MPI_Status status;
+            MPI_Recv(saida_arqs, sizeof(saida_arqs), MPI_CHAR, rank_worker, 2, MPI_COMM_WORLD, &status);
+            printf("%s", saida_arqs);
         }
        
     } else {
