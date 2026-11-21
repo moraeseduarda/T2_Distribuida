@@ -173,28 +173,40 @@ void executar_mestre_dinamico(char *pasta, int workers)
         return;
     }
 
+    // Caminho normal
+    // Vetor de resultados
     Resultado *quadro = calloc(T, sizeof(Resultado));
+
+    // Guarda qual arquivo cada worker está processando
     int *arquivo_do_worker = malloc((workers + 1) * sizeof(int));
+
+    // Proximo arquivo ainda nao entregue
     int proximo = 0;
+
+    // Qtd de worker ativos
     int workers_ativos = 0;
 
+    // Para marcar quando começou
     double hora_inicio = MPI_Wtime();
 
+    // Envio de tarefa
     for (int w = 1; w <= workers; w++)
-    {
+    { // Se o proximo ainda não tiver atingido o total de arquivos
         if (proximo < T)
         {
+            // Envia o proximo
             MPI_Send(lista[proximo], strlen(lista[proximo]) + 1, MPI_CHAR, w, TAG_TAREFA, MPI_COMM_WORLD);
             arquivo_do_worker[w] = proximo;
-            proximo++;
-            workers_ativos++;
+            proximo++;        // Incrementa
+            workers_ativos++; // Incrementa
         }
         else
-        {
+        { // Quando acaba, envia a tag de encerramento
             MPI_Send(NULL, 0, MPI_CHAR, w, TAG_ENCERRAR, MPI_COMM_WORLD);
         }
     }
 
+    // Recebimento de resultado
     while (workers_ativos > 0)
     {
         int cab[2];
@@ -233,6 +245,7 @@ void executar_mestre_dinamico(char *pasta, int workers)
         total_geral += quadro[i].total;
     }
 
+    // Saida e limpeza de dados
     printf("\n=== RESUMO ===\n");
     printf("Total de arquivos: %d\n", T);
     printf("Total de ocorrencias: %d\n", total_geral);
@@ -250,4 +263,59 @@ void executar_mestre_dinamico(char *pasta, int workers)
     free(lista);
     free(quadro);
     free(arquivo_do_worker);
+}
+
+int main(int argc, char *argv[])
+{
+    MPI_Init(&argc, &argv);
+
+    int meu_rank, total_processos;
+    MPI_Comm_rank(MPI_COMM_WORLD, &meu_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &total_processos);
+    int workers = total_processos - 1;
+
+    char *pasta = NULL;
+    char *termo = NULL;
+    char *modo = NULL;
+    for (int i = 1; i < argc - 1; i++)
+    {
+        if (strcmp(argv[i], "--dir") == 0)
+            pasta = argv[i + 1];
+        if (strcmp(argv[i], "--search") == 0)
+            termo = argv[i + 1];
+        if (strcmp(argv[i], "--mode") == 0)
+            modo = argv[i + 1];
+    }
+
+    int args_ok = pasta != NULL && termo != NULL && modo != NULL && (strcmp(modo, "static") == 0 || strcmp(modo, "dynamic") == 0) && workers >= 1;
+
+    if (!args_ok)
+    {
+        if (meu_rank == 0)
+        {
+            printf("Uso: mpirun -np N ./busca_logs --dir PASTA --search TERMO --mode static|dynamic\n");
+            printf("(N deve ser pelo menos 2)\n");
+        }
+        MPI_Finalize();
+        return 1;
+    }
+
+    if (strcmp(modo, "dynamic") == 0)
+    {
+        if (meu_rank == 0)
+        {
+            executar_mestre_dinamico(pasta, workers);
+        }
+        else
+        {
+            executar_worker(termo);
+        }
+    }
+    else
+    {
+        // modo static: parte do grupo
+    }
+
+    MPI_Finalize();
+    return 0;
 }
