@@ -4,6 +4,19 @@
 #include <mpi.h>
 #include <dirent.h>
 
+char *pegar_nome_arquivo(char *caminho) {
+    char barra_linux = strrchr(caminho, '/');
+
+    char *ultima_barra = barra_linux ? barra_linux + 1 : caminho;
+
+    return ultima_barra;
+    // if (ultima_barra != NULL) {
+    //     return ultima_barra;
+    // } else {
+    //     return NULL;
+    // }
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 7) {
         printf("O número de parâmetros deve ser 7\n");
@@ -43,20 +56,48 @@ int main(int argc, char *argv[]) {
             contador_arquivos++;
         };
         
+        for (int i = 1; i <= num_workers; i++) {
+            MPI_Send(NULL, 0, MPI_CHAR, i, 0, MPI_COMM_WORLD);
+        }
+
+        for (int arq = 0; arq < contador_arquivos; arq++) {
+            char saida_arqs[2048];
+            MPI_Recv(saida_arqs, sizeof(saida_arqs), MPI_CHAR, MPI_ANY_SOURCE, 2, MPI_COMM_WORLD, &status);
+            //Falta organizar a saída para ficar igual o exemplo do enunciado, em ordem de arquivo.
+        }
+       
     } else {
-        char nome_arquivo[256];
-        MPI_Recv(nome_arquivo, sizeof(nome_arquivo), MPI_CHAR, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        FILE *pont_arq = fopen(nome_arquivo, "r");
+        while (1) {
+            MPI_Status status;
         
-        char linha_lida[1024];
-        int num_linha = 0;
-        int total_ocorrencias = 0;
-        // Faz um laço para ler o arquivo, lendo uma linha por vez e verificando se tem o termo ou não.
-        while (fgets(linha_lida, sizeof(linha_lida), pont_arq)) {
-            num_linha++;
-            if (strstr(linha_lida, termo_busca) != NULL) {
-                total_ocorrencias++;
+            char nome_arquivo[256];
+            MPI_Recv(nome_arquivo, sizeof(nome_arquivo), MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            if (status.MPI_TAG == 0) {
+                break;
             }
+            char saida[2048];
+            saida[0] = '\0';
+
+            FILE *pont_arq = fopen(nome_arquivo, "r");
+            
+            
+            char linha_lida[1024];
+            int num_linha = 0;
+            int total_ocorrencias = 0;
+            
+            // Faz um laço para ler o arquivo, lendo uma linha por vez e verificando se tem o termo ou não.
+            while (fgets(linha_lida, sizeof(linha_lida), pont_arq)) {
+                num_linha++;
+                if (strstr(linha_lida, termo_busca) != NULL) {
+                    total_ocorrencias++;
+                    char linha_format[1024];
+                    sprintf(linha_format, "%s:%d: %s\n", pegar_nome_arquivo(nome_arquivo), num_linha, linha_lida);
+                    strcat(saida, linha_format);
+                }
+            }
+
+            fclose(pont_arq);
+            MPI_Send(saida, sizeof(saida), MPI_CHAR, 0, 2, MPI_COMM_WORLD);
         }
     }
     MPI_Finalize();
