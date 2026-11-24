@@ -4,6 +4,22 @@
 
 ---
 
+## Estrutura do Projeto
+
+**Antes da compilação:**
+* `busca_logs`
+* `dinamico.c`
+* `estatico-v2.c`
+* `gerador_logs_t2.c`
+* `INSTRUCOES.md`
+* `main.c`
+
+**Após a compilação e execução dos testes:**
+Além dos arquivos originais, são gerados:
+* **Executáveis compilados:** `dinamico`, `estatico-v2`, `gerador_logs_t2` e `main`
+* **Diretório:** `logs/` (contendo os arquivos gerados nos testes)
+
+
 ## 1. Preparação do Ambiente com Docker (Linux Ubuntu)
 
 Para garantir reprodutibilidade e isolamento de dependências, utilizamos o ambiente containerizado baseado na imagem e no tutorial de uso do Docker fornecidos no Moodle, em um Linux Ubuntu.
