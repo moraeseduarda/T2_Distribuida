@@ -94,7 +94,7 @@ A execução distribuída é coordenada via `mpiexec`. O processo de rank 0 atua
 ### Sintaxe Geral
 
 ```bash
-mpiexec -np <num_processos> ./dinamico --dir <caminho_logs> --search "<termo>" --mode <static|dynamic>
+mpiexec -np <num_processos> ./busca_logs --dir <caminho_logs> --search "<termo>" --mode <static|dynamic>
 ```
 
 ### Parâmetros de Execução
