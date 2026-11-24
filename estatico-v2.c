@@ -5,7 +5,7 @@
 #include <dirent.h>
 
 char *pegar_nome_arquivo(char *caminho) {
-    char barra_linux = strrchr(caminho, '/');
+    char *barra_linux = strrchr(caminho, '/');
 
     char *ultima_barra = barra_linux ? barra_linux + 1 : caminho;
 
@@ -60,10 +60,17 @@ int main(int argc, char *argv[]) {
             MPI_Send(NULL, 0, MPI_CHAR, i, 0, MPI_COMM_WORLD);
         }
 
+        int total_geral = 0;
+
         for (int arq = 0; arq < contador_arquivos; arq++) {
+            MPI_Status status;
+            int ocorrencias_arq = 0;
             char saida_arqs[2048];
             int rank_worker = arq % num_workers + 1;
-            MPI_Status status;
+
+            MPI_Recv(&ocorrencias_arq, 1, MPI_INT, rank_worker, 3, MPI_COMM_WORLD, &status);
+            total_geral += ocorrencias_arq;
+
             MPI_Recv(saida_arqs, sizeof(saida_arqs), MPI_CHAR, rank_worker, 2, MPI_COMM_WORLD, &status);
             printf("%s", saida_arqs);
         }
@@ -99,6 +106,7 @@ int main(int argc, char *argv[]) {
             }
 
             fclose(pont_arq);
+            MPI_Send(&total_ocorrencias, 1, MPI_INT, 0, 3, MPI_COMM_WORLD);
             MPI_Send(saida, sizeof(saida), MPI_CHAR, 0, 2, MPI_COMM_WORLD);
         }
     }
