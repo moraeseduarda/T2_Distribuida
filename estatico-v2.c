@@ -17,7 +17,7 @@ char *pegar_nome_arquivo(char *caminho) {
     // }
 }
 
-int main(int argc, char *argv[]) {
+int main_estatico(int argc, char *argv[]) {
     if (argc != 7) {
         printf("O número de parâmetros deve ser 7\n");
         return 1;
@@ -111,4 +111,5 @@ int main(int argc, char *argv[]) {
         }
     }
     MPI_Finalize();
+    return 0;
 }

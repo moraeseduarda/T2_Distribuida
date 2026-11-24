@@ -265,7 +265,7 @@ void executar_mestre_dinamico(char *pasta, int workers)
     free(arquivo_do_worker);
 }
 
-int main(int argc, char *argv[])
+int main_dinamico(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
 

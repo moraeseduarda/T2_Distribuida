@@ -115,11 +115,11 @@ mpiexec -np <num_processos> ./dinamico --dir <caminho_logs> --search "<termo>" -
 **Execução no modo dinâmico:**
 
 ```bash
-mpiexec -np 4 ./dinamico --dir /exercicios/T2_Distribuida/logs --search "ERROR" --mode dynamic
+mpiexec -np 4 ./busca_logs --dir /exercicios/T2_Distribuida/logs --search "ERROR" --mode dynamic
 ```
 
 **Execução no modo estático:**
 
 ```bash
-mpiexec -np 4 ./dinamico --dir /exercicios/T2_Distribuida/logs --search "ERROR" --mode static
+mpiexec -np 4 ./busca_logs --dir /exercicios/T2_Distribuida/logs --search "ERROR" --mode static
 ```
