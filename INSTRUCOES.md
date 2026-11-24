@@ -30,8 +30,6 @@ Para garantir reprodutibilidade e isolamento de dependências, utilizamos o ambi
    nproc
    ```
 
-> **Nota:** no texto original, o comando do passo 2 aparecia como `"(id-u):(id -g)"`. Corrigi para `"$(id -u):$(id -g)"`, que é a sintaxe correta de substituição de comando no shell.
-
 ---
 
 ## 2. Compilação dos Programas
@@ -52,14 +50,12 @@ gcc -Wall -O2 -o gerador_logs_t2 gerador_logs_t2.c
 
 ### 2.2. Aplicação Distribuída MPI
 
-Compilação do código da aplicação paralela com o wrapper `mpicc`:
+Compilação dos arquivos do trabalho:
 
 ```bash
-mpicc -Wall -O2 -o dinamico dinamico.c
+mpicc -Wall -O2 -o busca_logs main.c dinamico.c estatico-v2.c
 ```
 
-- `mpicc`: wrapper do compilador MPICH que inclui automaticamente os cabeçalhos (`mpi.h`) e vincula as bibliotecas necessárias de passagem de mensagens.
-- `-o dinamico`: gera o binário final da aplicação distribuída (o mesmo padrão deve ser estendido para fontes adicionais, como `estatico.c`).
 
 ---
 
