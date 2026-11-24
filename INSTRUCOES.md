@@ -16,8 +16,8 @@
 
 **Após a compilação e execução dos testes:**
 Além dos arquivos originais, são gerados:
-* **Executáveis compilados:** `dinamico`, `estatico-v2`, `gerador_logs_t2` e `main`
-* **Diretório:** `logs/` (contendo os arquivos gerados nos testes)
+* **Executáveis compilados**
+* **Diretórios:** `testes/` (contendo os arquivos gerados nos testes contidos no relatório) e ` logs/` (contendo arquivos de teste de compilação)
 
 
 ## 1. Preparação do Ambiente com Docker (Linux Ubuntu)
