@@ -311,10 +311,6 @@ int main_dinamico(int argc, char *argv[])
             executar_worker(termo);
         }
     }
-    else
-    {
-        // modo static: parte do grupo
-    }
 
     MPI_Finalize();
     return 0;
