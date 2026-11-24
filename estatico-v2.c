@@ -65,21 +65,29 @@ int main(int argc, char *argv[]) {
         }
 
         printf("=== RESULTADOS DA BUSCA ===\n");
+
+        char *saida_arqs = malloc(2000000);
+
         for (int arq = 0; arq < contador_arquivos; arq++) {
             MPI_Status status;
             int ocorrencias_arq = 0;
-            char saida_arqs[10000];
+            // char saida_arqs[10000];
+            
             int rank_worker = arq % num_workers + 1;
 
             MPI_Recv(&ocorrencias_arq, 1, MPI_INT, rank_worker, 3, MPI_COMM_WORLD, &status);
             ocorrencias_por_arquivo[arq] = ocorrencias_arq;
             total_geral += ocorrencias_arq;
 
-            MPI_Recv(saida_arqs, sizeof(saida_arqs), MPI_CHAR, rank_worker, 2, MPI_COMM_WORLD, &status);
+            MPI_Recv(saida_arqs, 2000000, MPI_CHAR, rank_worker, 2, MPI_COMM_WORLD, &status);
             printf("%s", saida_arqs);
         }
-       
+
+        free(saida_arqs);
+
     } else {
+        char *saida = malloc(2000000);
+
         while (1) {
             MPI_Status status;
         
@@ -88,7 +96,8 @@ int main(int argc, char *argv[]) {
             if (status.MPI_TAG == 0) {
                 break;
             }
-            char saida[10000];
+            // char saida[10000];
+            // Zera a primeira posição do array para esvaziar o texto do arquivo anterior
             saida[0] = '\0';
 
             FILE *pont_arq = fopen(nome_arquivo, "r");
@@ -111,9 +120,10 @@ int main(int argc, char *argv[]) {
                 num_linha++;
                 if (strstr(linha_lida, termo_busca) != NULL) {
                     total_ocorrencias++;
-                    char linha_format[2048];
-                    sprintf(linha_format, "%s:%d: %s", pegar_nome_arquivo(nome_arquivo), num_linha, linha_lida); // Talvez voltar \n para formatação
-                    strcat(saida, linha_format);
+                    // char linha_format[2048];
+                    // sprintf(linha_format, "%s:%d: %s", pegar_nome_arquivo(nome_arquivo), num_linha, linha_lida); // Talvez voltar \n para formatação
+                    // strcat(saida, linha_format);
+                    sprintf(saida + strlen(saida), "%s:%d: %s", pegar_nome_arquivo(nome_arquivo), num_linha, linha_lida);
                 }
             }
 
@@ -121,6 +131,8 @@ int main(int argc, char *argv[]) {
             MPI_Send(&total_ocorrencias, 1, MPI_INT, 0, 3, MPI_COMM_WORLD);
             MPI_Send(saida, strlen(saida) + 1, MPI_CHAR, 0, 2, MPI_COMM_WORLD);
         }
+
+        free(saida);
     }
     // Sincroniza todos os processos antes de finalizar
     MPI_Barrier(MPI_COMM_WORLD);
